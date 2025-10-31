@@ -16,30 +16,33 @@ class InProcessJavaCompiler {
 
 
     public static Map<String, byte[]> compile(String className, String source,
-                                              List<String> options) {
-        JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diags = new DiagnosticCollector<>();
-        try (StandardJavaFileManager std = jc.getStandardFileManager(diags, null, null)) {
-            MemManager mem = new MemManager(std);
-            JavaFileObject src = new MemFile(className, source);
-            JavaCompiler.CompilationTask task =
-                    jc.getTask(null, mem, diags, options, null, List.of(src));
-            boolean ok = task.call();
+                                      List<String> options) {
+        var jc = ToolProvider.getSystemJavaCompiler();
+        var diags = new DiagnosticCollector<>();
+        try (var std = jc.getStandardFileManager(diags, null, null)) {
+            var mem = new MemManager(std);
+            var src = new MemFile(className, source);
+            var task = jc.getTask(null, mem, diags, options, null, List.of(src));
+            var ok = task.call();
+
             if (!ok) throw new IllegalStateException(diags.getDiagnostics().toString());
+
             return mem.output(); // class name -> .class bytes
         } catch (IOException ioe) {
             throw new UncheckedIOException(ioe);
         }
     }
+/*
 
     // optional: write .class files to disk
-    public static void writeToDir(Map<String, byte[]> classes, Path outDir) throws IOException {
+    static void writeToDir(Map<String, byte[]> classes, Path outDir) throws IOException {
         for (var e : classes.entrySet()) {
-            Path p = outDir.resolve(e.getKey().replace('.', '/') + ".class");
+            var p = outDir.resolve(e.getKey().replace('.', '/') + ".class");
             Files.createDirectories(p.getParent());
             Files.write(p, e.getValue());
         }
     }
+*/
 
     // hold compiled .class bytes in memory
     static class MemFile extends SimpleJavaFileObject {
@@ -75,6 +78,7 @@ class InProcessJavaCompiler {
     }
 
     static class MemManager extends ForwardingJavaFileManager<JavaFileManager> {
+
         private final Map<String, MemFile> classes = new HashMap<>();
 
         MemManager(JavaFileManager fileManager) {
@@ -90,7 +94,7 @@ class InProcessJavaCompiler {
         }
 
         Map<String, byte[]> output() {
-            Map<String, byte[]> out = new HashMap<>();
+            var out = new HashMap<String, byte[]> ();
             classes.forEach((n, f) -> out.put(n, f.bytes()));
             return out;
         }

@@ -2,6 +2,7 @@ package vibesafe4j;
 
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -23,11 +24,20 @@ public class Vibesafe4j {
             
             """;
 
-    public static Class<?> classFor(CompilationUnit result) {
+    @SuppressWarnings("unchecked")
+    public static <T> T build(Function<String, String> aiCallback, Class<T> clzz) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        var cu = sourceFor(aiCallback, clzz);
+        var clzzInstance = classFor(cu);
+        return (T) clzzInstance.getConstructors()[0].newInstance();
+    }
+
+     static Class<?> classFor(CompilationUnit result) {
+        var javaVersion = System.getProperty("java.version");
         var clzz = result.className();
         var code = result.code();
-        var classes = InProcessJavaCompiler.compile(clzz, code, List.of());
-        var loader = new BytesClassLoader(Thread.currentThread().getContextClassLoader());
+        var classes = InProcessJavaCompiler.compile(clzz, code, List.of("-source", javaVersion,
+                "-target", javaVersion));
+        var loader = new BytesClassLoader(ClassLoader.getSystemClassLoader());
         for (var k : classes.keySet()) {
             var bytes = classes.get(k);
             return loader.define(k, bytes);
@@ -36,7 +46,8 @@ public class Vibesafe4j {
 
     }
 
-    public static CompilationUnit sourceFor(Function<String, String> callback, Class<?> interfaceClass) {
+     static CompilationUnit sourceFor(Function<String, String> callback, Class<?> interfaceClass) {
+        var newClassName = interfaceClass.getSimpleName() + "Impl";
         var newCode = new StringBuilder();
         for (var funcMethod : funcyMethods(interfaceClass)) {
             var funcAnnotation = funcMethod.getAnnotation(Func.class);
@@ -44,11 +55,15 @@ public class Vibesafe4j {
             var implementedMethodCode = callback.apply(prompt);
             newCode.append(implementedMethodCode).append(System.lineSeparator());
         }
-        newCode = new StringBuilder("public  class " + interfaceClass.getSimpleName() +
-                " {" + newCode + "}");
+        newCode = new StringBuilder(" package " + interfaceClass.getPackage().getName() + ".gen" + " ; " + System.lineSeparator() + System.lineSeparator() +
+                "  public class " + newClassName + " implements " + interfaceClass.getName() + System.lineSeparator() +
+                " { " + newCode + " }");
         var code = newCode.toString();
-        return new CompilationUnit(code, interfaceClass.getSimpleName());
+        return new CompilationUnit(code, newClassName);
 
+    }
+
+    public record CompilationUnit(String code, String className) {
     }
 
     private static Set<Method> funcyMethods(Class<?> clzz) {
@@ -61,8 +76,5 @@ public class Vibesafe4j {
             }
         }
         return set;
-    }
-
-    public record CompilationUnit(String code, String className) {
     }
 }
