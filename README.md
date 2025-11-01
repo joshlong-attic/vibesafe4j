@@ -48,6 +48,4 @@ and turn them into valid implementations that can be injected, with no configura
 		IO.println("response: " + response);
 	}
 ```
-
-## TODO 
-* we need to figure out this [AOT + GraalVM story](https://github.com/joshlong/declarative-client-registration/blob/main/src/main/java/auto/AutoClientRegistrar.java). We'd have several issues with this, not least of which is that the AI code would need to run during compilation. Hrmm. 
+ 
