@@ -1,4 +1,6 @@
-package vibesafe4j;
+package test;
+
+import vibesafe4j.Func;
 
 public interface Greeting {
 

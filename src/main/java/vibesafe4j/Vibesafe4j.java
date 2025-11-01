@@ -15,7 +15,7 @@ import java.util.function.Function;
  * @author Josh Long
  * @author Diwank Singh Tomer
  */
-public class Vibesafe4j {
+public abstract class Vibesafe4j {
 
 	private final static String DEFAULT_PROMPT = """
 
@@ -27,6 +27,16 @@ public class Vibesafe4j {
 
 			""";
 
+	/**
+	 * Most users will start here.
+	 * @param aiCallback how will the proxy invoke an LLM model? It's trivial to plugin
+	 * whatever API you want here.
+	 * @param clzz the class whose shape we want the resulting proxy to assume.
+	 * @param <T> the type of the resulting instance.
+	 * @return a valid instance.
+	 * @throws InvocationTargetException , InstantiationException, IllegalAccessException
+	 * - lots of things can go wrong in the world of reflection and compilers.
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T build(Function<String, String> aiCallback, Class<T> clzz)
 			throws InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -35,7 +45,7 @@ public class Vibesafe4j {
 		return (T) clzzInstance.getConstructors()[0].newInstance();
 	}
 
-	static Class<?> classFor(CompilationUnit result) {
+	public static Class<?> classFor(CompilationUnit result) {
 		var javaVersion = System.getProperty("java.version");
 		var clzz = result.className();
 		var code = result.code();
@@ -50,13 +60,17 @@ public class Vibesafe4j {
 
 	}
 
-	static CompilationUnit sourceFor(Function<String, String> callback, Class<?> interfaceClass) {
+	public static CompilationUnit sourceFor(Function<String, String> callback, Class<?> interfaceClass) {
 		var newClassName = interfaceClass.getSimpleName() + "Impl";
 		var newCode = new StringBuilder();
 		for (var funcMethod : funcyMethods(interfaceClass)) {
 			var funcAnnotation = funcMethod.getAnnotation(Func.class);
 			var prompt = DEFAULT_PROMPT + funcAnnotation.value();
 			var implementedMethodCode = callback.apply(prompt);
+
+			if (!implementedMethodCode.contains("public"))
+				implementedMethodCode = " public " + implementedMethodCode;
+
 			newCode.append(implementedMethodCode).append(System.lineSeparator());
 		}
 		newCode = new StringBuilder(" package " + interfaceClass.getPackage().getName() + ".gen" + " ; "

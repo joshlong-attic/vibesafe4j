@@ -1,25 +1,37 @@
-package vibesafe4j;
+package test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import vibesafe4j.Vibesafe4j;
 
 @SpringBootApplication
 class App {
 
+	// public static void main(String[] args) {
+	// SpringApplication.run(App.class, args);
+	// }
+	//
 	@Bean
-	ChatClient chatClient(ChatClient.Builder builder) {
+	ChatClient ai(ChatClient.Builder builder) {
 		return builder.build();
 	}
 
 }
 
-@SpringBootTest
+@SpringBootTest(classes = App.class)
 class Vibesafe4jTest {
+
+	@Test
+	void auto(@Autowired Greeting greeting) {
+		var response = greeting.greet("vibesafe4j");
+		IO.println("response: " + response);
+	}
 
 	@Test
 	void build(@Autowired ChatClient ai) throws Exception {
@@ -30,7 +42,7 @@ class Vibesafe4jTest {
 		IO.println(strResult);
 	}
 
-	@Test
+	// @Test
 	void atoms(@Autowired ChatClient ai) throws Exception {
 		var result = Vibesafe4j.sourceFor(prompt -> ai.prompt(prompt).call().content(), Greeting.class);
 		Assertions.assertFalse(result.code().isBlank());
