@@ -68,15 +68,6 @@ abstract class FuncBeanUtils {
 
 class FuncBeanRegistrar implements BeanDefinitionRegistryPostProcessor {
 
-	// todo what's this look like in the wacky world of graalvm ?
-
-	// todo a BeanFactoryInitializationAotProcessor that writes out the source code and
-	// then adds the generated class name
-	// to programmatically register a new instance using Javapoet. Make sure to create a
-	// new class! do <em>not</em> overload this class!
-
-	// todo should we give the model information about the parameters?
-
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 		if (registry instanceof ConfigurableListableBeanFactory beanFactory) {
