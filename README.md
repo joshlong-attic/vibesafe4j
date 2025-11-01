@@ -25,7 +25,6 @@ your choice, using the lower-level `Vibesafe4j` factory. Here, in a test, we're 
 
 ```java
 
-
 	@Test
 	void build(@Autowired ChatClient ai) throws Exception {
 		var greetingsInstance = Vibesafe4j.build(prompt -> ai.prompt(prompt).call().content(), Greeting.class);
@@ -51,4 +50,4 @@ and turn them into valid implementations that can be injected, with no configura
 ```
 
 ## TODO 
-* we need to figure out this AOT + GraalVM story
+* we need to figure out this [AOT + GraalVM story](https://github.com/joshlong/declarative-client-registration/blob/main/src/main/java/auto/AutoClientRegistrar.java). We'd have several issues with this, not least of which is that the AI code would need to run during compilation. Hrmm. 
