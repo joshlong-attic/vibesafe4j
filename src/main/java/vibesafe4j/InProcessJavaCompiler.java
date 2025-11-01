@@ -32,13 +32,6 @@ class InProcessJavaCompiler {
 			throw new UncheckedIOException(ioe);
 		}
 	}
-	/*
-	 *
-	 * // optional: write .class files to disk static void writeToDir(Map<String, byte[]>
-	 * classes, Path outDir) throws IOException { for (var e : classes.entrySet()) { var p
-	 * = outDir.resolve(e.getKey().replace('.', '/') + ".class");
-	 * Files.createDirectories(p.getParent()); Files.write(p, e.getValue()); } }
-	 */
 
 	// hold compiled .class bytes in memory
 	static class MemFile extends SimpleJavaFileObject {
