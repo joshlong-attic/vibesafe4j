@@ -69,13 +69,13 @@ class FuncBeanRegistrar implements BeanDefinitionRegistryPostProcessor {
 				var aiClientBean = beanFactory.getBean(aiClientBeanDefinitionName, AiClient.class);
 				return aiClientBean.call(prompt);
 			};
-			var pkgs = AutoConfigurationPackages.get(beanFactory);
-			for (var pkg : pkgs) {
+			var packages = AutoConfigurationPackages.get(beanFactory);
+			for (var pkg : packages) {
 				var types = FuncDiscoveryUtils.findAnnotatedInterfacesInPackage(pkg);
 				for (var tr : types) {
 					try {
 						var clzz = Class.forName(tr.getName());
-						var instance = (Supplier<?>) () -> {
+						var supplier = (Supplier<?>) () -> {
 							try {
 								return Vibesafe4j.build(lookup, clzz);
 							}
@@ -85,7 +85,7 @@ class FuncBeanRegistrar implements BeanDefinitionRegistryPostProcessor {
 						};
 						var rbd = new RootBeanDefinition();
 						rbd.setBeanClass(clzz);
-						rbd.setInstanceSupplier(instance);
+						rbd.setInstanceSupplier(supplier);
 						registry.registerBeanDefinition("generated" + clzz.getSimpleName(), rbd);
 					} //
 					catch (Exception e) {

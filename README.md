@@ -1,8 +1,8 @@
 # vibesafe4j
 
-this is inpsired by the amazing https://github.com/julep-ai/vibesafe/ project. 
+This project is inspired by the amazing [Vibesafe](https://github.com/julep-ai/vibesafe/) project. 
 
-The general usage is straightforward. Given the following interface:
+Given the following interface:
 
 ```java
 

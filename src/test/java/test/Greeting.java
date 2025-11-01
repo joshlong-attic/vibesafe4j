@@ -2,7 +2,7 @@ package test;
 
 import vibesafe4j.Func;
 
-public interface Greeting {
+interface Greeting {
 
 	@Func("""
 			 return a greeting String
