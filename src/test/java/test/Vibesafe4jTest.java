@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import vibesafe4j.Vibesafe4j;
 
+import java.util.Map;
+
 @SpringBootApplication
 class App {
 
@@ -23,7 +25,12 @@ class App {
 class Vibesafe4jTest {
 
 	@Test
-	void auto(@Autowired Greeting greeting) {
+	void auto(@Autowired Greeting greeting, @Autowired Map<String, Greeting> greetingMap) {
+
+		for (var beanName : greetingMap.keySet()) {
+			IO.println("found an implementation bean called [" + beanName + "]");
+		}
+
 		var response = greeting.greet("vibesafe4j");
 		IO.println("response: " + response);
 	}

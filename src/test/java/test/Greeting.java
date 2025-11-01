@@ -9,8 +9,10 @@ interface Greeting {
 
 			 >>> greet("Alice")
 			 'Hello, Alice!'
-			 >>> greet("ni hao")
-			 'Hello, ni hao '
+
+			 >>> greet("Chandra")
+			 'Hello, Chandra!'
+
 			""")
 	String greet(String name);
 
